@@ -1,0 +1,18 @@
+peer_group:
+    圣达菲: 圣达菲
+    本地: 本地
+    硒鼓: 硒鼓
+    远程: 远程
+peer_list:
+    - group: 本地
+      name: 创始节点
+      ip: 127.0.0.1
+      port: 2080
+      username: user
+      password: userp
+    - group: 远程
+      name: 主节点
+      ip: 127.0.0.1
+      port: 2081
+      username: test
+      password: testp
