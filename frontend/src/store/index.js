@@ -1,18 +1,17 @@
 import { createStore } from 'vuex'
 export default createStore({
     state: {
-        peerInfo:null,
         peerInfoIndex:-1,//选中的节点的index
         selectedAddress:"",//选中的地址
-        peerList:[],
-        addressesOptions:[],
-        drawer:false,
+        peerList:[],//节点列表数据
+        addressesOptions:[],//级联地址选择器数据
+        drawer:false, //详情抽屉页是否展示
     },
     getters: {
-        getPeerInfo(state) {
+        getPeerInfo(state) { //详情抽屉页的节点信息
             return state.peerList[state.peerInfoIndex]
         },
-        getSelectedAddressInfo(state,getters){
+        getSelectedAddressInfo(state,getters){//详情抽屉页选择的地址信息
             if (getters.getPeerInfo.addresses && state.selectedAddress) {
                 return getters.getPeerInfo.addresses.find(item => item.address === state.selectedAddress)
             }
@@ -27,7 +26,7 @@ export default createStore({
         },
     },
     mutations: {
-        setAddressesOptions(state) {
+        setAddressesOptions(state) { //获取级联地址选择器数据
             const options = [];
 
             // 创建一个 Map 对象，用于存储分组及其对应的节点

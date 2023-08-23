@@ -138,7 +138,7 @@ const pasteFromClipboard = async () => {
     try {
         const text = await navigator.clipboard.readText()
         ruleForm.toaddress = text.trim()
-        store.state.addressesOptions.push({value: ruleForm.toaddress,label: ruleForm.toaddress,children:[]})
+        store.state.addressesOptions.push({value: ruleForm.toaddress,label: ruleForm.toaddress,children:[]})//必须将粘贴的地址加载到addressesOptions中才会显示在选择器中
     } catch (error) {
         console.error('无法从剪贴板中读取文本', error)
     }

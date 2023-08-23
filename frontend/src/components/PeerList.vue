@@ -190,9 +190,9 @@ export default {
                 default_address: null,
                 addresses:[],
             },
-            editingItem: false,
+            editingItem: false,//节点配置弹窗是添加还是编辑
             formLabelWidth:'100px',
-            groupfilters:[
+            groupfilters:[ //筛选功能的分组列表
                ],
             rules : {
                 group: [
@@ -220,7 +220,7 @@ export default {
                 group:''
             },
             dynamicTags: [
-                // { value: 'Tag 1', editable: false,tmp:'',popover:false  },
+                // { value: 'Tag 1', editable: false,tmp:'',popover:false  }, value分组名，editable编辑框是否显示，tmp用于保存修改之前的分组名在修改时作对比，popover控制删除提示框是否显示
                 // { value: 'Tag 2', editable: false,tmp:'',popover:false  },
                 // { value: 'Tag 3', editable: false ,tmp:'',popover:false }
             ],
@@ -234,7 +234,7 @@ export default {
     },
     mounted() {
         this.timer = setInterval(() => {
-            this.loadPeerList();
+            this.loadPeerList(); //500毫秒更新一次节点列表数据
         }, 500)
     },
     beforeUnmount() {
@@ -252,7 +252,7 @@ export default {
                             obj[item.group] = [...(obj[item.group] || []), item];
                             return obj;
                         }, {});
-                        // 将 grouped 的值放在数组前面
+                        // 将 grouped 的值放在数组前面,实现把同一组的数据放在一起
                         this.$store.state.peerList = [].concat(...Object.values(grouped), ...result.filter(item => !this.selectedGroups.includes(item.group)));
                     } else {
                         this.$store.state.peerList = result;
@@ -283,7 +283,6 @@ export default {
                 console.log(error)
             });
         },
-
         switchChange(item){
             SetStatus(item.id,item.status).then((result) => {
                 console.log('id :'+item.id+' status:'+item.status)
@@ -382,7 +381,7 @@ export default {
         },
         filterTag(value,row,column){
             this.selectedGroups = column.filteredValue //记录选中的项
-            return true //让筛选不起作用
+            return true //让筛选不起作用，因为在loadPeerList()中已经做了分组筛选
         },
         getTagType(type){
             if (type == 1) {
@@ -407,7 +406,7 @@ export default {
             }
         },
         getUsedTimeType(row){
-            if (row.status=== false || row.used_time === 0) {
+            if (row.status=== false || row.used_time === 0) { //关闭状态置灰
                 return 'info';
             } else if (0 < row.used_time && row.used_time <= 50) {
                 return 'success';
@@ -420,17 +419,17 @@ export default {
         showDrawer(row){
             const index = this.$store.state.peerList.findIndex((data) => data.id === row.id);
             if (index !== -1) {
-                this.$store.state.peerInfoIndex = index
-                this.$store.state.selectedAddress = row.default_address?row.default_address.address:''
-                this.$store.state.drawer = true
-                this.$store.commit('setAddressesOptions')
+                this.$store.state.peerInfoIndex = index //抽屉中应该展示的节点的Index
+                this.$store.state.selectedAddress = row.default_address?row.default_address.address:'' //默认选中的地址
+                this.$store.state.drawer = true //打开抽屉
+                this.$store.commit('setAddressesOptions')//打开抽屉时加载级联地址数据
             }
 
         },
-        filterChange(filters) {
+        filterChange(filters) { //将当前筛选所选中的分组记录下来
             this.selectedGroups= filters['groups']
         },
-        groupFormSubmit() {
+        groupFormSubmit() { //弹窗功能添加分组
             const group = this.groupForm.group.trim()
 
             if (group === '') {
@@ -449,7 +448,7 @@ export default {
             });
 
         },
-        showTagDialog(){
+        showTagDialog(){ //所有分组tag
             const tags = [];
             this.groupfilters.forEach(function (item, index) {
                 tags.push({ value: item.value, editable: false,tmp:item.value,popover:false });
@@ -457,10 +456,10 @@ export default {
             this.dynamicTags = tags
             this.tagDialogVisible=true
         },
-        showPopover(tag) {
+        showPopover(tag) { //显示删除分组提示
             tag.popover = true;
         },
-        tagHandleClose(tag) {
+        tagHandleClose(tag) { //删除分组
             const index = this.dynamicTags.findIndex(t => t.value === tag.value);
             if (index !== -1) {
                 tag.popover = false;
@@ -476,14 +475,14 @@ export default {
             }
         },
 
-        showNewTagInput() {
+        showNewTagInput() { //显示分组添加修改框
             this.newTagInputVisible = true;
             this.$nextTick(() => {
                 this.$refs.saveTagInput.focus();
             });
         },
 
-        tagHandleEdit(index) {
+        tagHandleEdit(index) { //显示分组修改框
             this.dynamicTags[index].editable = true;
             this.dynamicTags[index].tmp = this.dynamicTags[index].value;
             this.$nextTick(() => {
@@ -494,11 +493,11 @@ export default {
             });
         },
 
-        tagHandleInputConfirm(index) {
+        tagHandleInputConfirm(index) {//修改分组
             const tag = this.dynamicTags[index];
             tag.editable = false;
-            if (tag.value.trim()) {
-                if (tag.value.trim() !== tag.tmp.trim()) {
+            if (tag.value.trim()) { //有值
+                if (tag.value.trim() !== tag.tmp.trim()) { //有修改
                     console.log(tag)
                     //修改
                     EditGroup(tag.value.trim(),tag.tmp.trim()).then((result) => {
@@ -511,11 +510,10 @@ export default {
                     });
                 }
             } else {
-                tag.value = tag.tmp.trim()
+                tag.value = tag.tmp.trim() //当为空时不修改
             }
         },
-
-        newTagHandleInputConfirm() {
+        newTagHandleInputConfirm() {//添加分组tag
             const newGorup = this.newTagInputValue.trim();
             if (newGorup) {
                 AddGroup(newGorup).then((result) => {
