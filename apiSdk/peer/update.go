@@ -85,7 +85,7 @@ func update(peer *Peer) error {
 	peer.TotalBalance = totalBalance
 	peer.Types = types
 
-	if peer.DefaultAddress == nil {
+	if len(addresses) > 0 {
 		peer.DefaultAddress = addresses[0]
 	}
 
