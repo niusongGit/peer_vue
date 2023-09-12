@@ -14,7 +14,7 @@
         <el-table-column prop="name" label="节点名" :min-width="40"/>
         <el-table-column prop="highest_block" label="高度">
             <template #default="scope">
-                <el-text class="mx-1" :type="scope.row.status?'primary':'info'">{{scope.row.current_block}}</el-text>/<el-text class="mx-1" :type="scope.row.status?'success':'info'" tag="b">{{scope.row.highest_block}}</el-text>
+                <el-text class="mx-1" :type="getCurrentBlockType(scope.row)">{{scope.row.current_block}}</el-text>/<el-text class="mx-1" :type="scope.row.status?'success':'info'" tag="b">{{scope.row.highest_block}}</el-text>
             </template>
         </el-table-column>
         <el-table-column prop="total_balance" label="余额"/>
@@ -225,7 +225,8 @@ export default {
                 // { value: 'Tag 3', editable: false ,tmp:'',popover:false }
             ],
             newTagInputVisible: false,
-            newTagInputValue: ''
+            newTagInputValue: '',
+            peerCurrentBocks:{} //用来记录区块高度是否在增长
         };
     },
     created: function () {
@@ -372,6 +373,9 @@ export default {
             if (index !== -1) {
                 this.$store.state.peerList.splice(index, 1);
                 DelPeer(item.id).then((result) => {
+                    if (this.peerCurrentBocks[item.id]){ //清除数据
+                        delete this.peerCurrentBocks[item.id];
+                    }
                     console.log('删除id :'+item.id+' result:'+result)
                 }).catch(error => {
                     // 处理错误
@@ -382,6 +386,28 @@ export default {
         filterTag(value,row,column){
             this.selectedGroups = column.filteredValue //记录选中的项
             return true //让筛选不起作用，因为在loadPeerList()中已经做了分组筛选
+        },
+        getCurrentBlockType(row){
+            if (!row.status){
+                return 'info'
+            }
+            if (this.peerCurrentBocks[row.id] == null){
+                this.peerCurrentBocks[row.id] = [row.current_block]
+            }else {
+                const timex = new Date().getTime()
+                if (timex%10 == 0){ //间隔时间
+                    this.peerCurrentBocks[row.id].push(row.current_block)
+                    if (this.peerCurrentBocks[row.id].length>3){ //最多采样3次
+                        this.peerCurrentBocks[row.id].splice(0,1)
+                    }
+                }
+
+                const sum = this.peerCurrentBocks[row.id].reduce((total,num)=>total+num)
+                if ((sum/this.peerCurrentBocks[row.id].length == row.current_block)){//高度未增加
+                    return 'danger'
+                }
+            }
+            return 'primary'
         },
         getTagType(type){
             if (type == 1) {

@@ -74,6 +74,7 @@ func (this *Api) EditPeer(p *Peer) (*Peer, error) {
 		this.peerMap.Delete(p.ID)
 	}
 	peer.ID = id
+	peer.Ip = p.Ip
 	peer.Group = p.Group
 	peer.Name = p.Name
 	peer.Port = p.Port

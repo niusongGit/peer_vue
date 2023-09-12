@@ -100,6 +100,7 @@ func update(peer *Peer) error {
 	peer.CurrentBlock = accountInfo.CurrentBlock
 	peer.HighestBlock = accountInfo.HighestBlock
 	peer.SnapshotHeight = accountInfo.SnapshotHeight
+	peer.Error = ""
 	peer.UpdatedAt = endAt
 	peer.setUsedTime(starAt)
 	return nil
